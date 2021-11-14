@@ -13,7 +13,7 @@ func PlayerServer(w http.ResponseWriter, r *http.Request) {
 	//TrimPrefix removes "/players/" from URL path string to return the players name
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
 
-	fmt.Fprint(2, GetPlayerScore(player))
+	fmt.Fprint(w, GetPlayerScore(player))
 }
 
 func GetPlayerScore(name string) string {
