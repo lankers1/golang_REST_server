@@ -8,12 +8,17 @@ import (
 )
 
 type StubPlayerStore struct {
-	scores map[string]string
+	scores   map[string]string
+	winCalls []string
 }
 
 func (s *StubPlayerStore) GetPlayerScore(name string) string {
 	score := s.scores[name]
 	return score
+}
+
+func (s *StubPlayerStore) RecordWin(name string) {
+	s.winCalls = append(s.winCalls, name)
 }
 
 func TestGETPlayers(t *testing.T) {
@@ -67,6 +72,22 @@ func TestStoreWins(t *testing.T) {
 
 		assertStatus(t, response.Code, http.StatusAccepted)
 	})
+
+	t.Run("it records wins when POST", func(t *testing.T) {
+		request := newPostWinRequest("Pepper")
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, request)
+
+		assertStatus(t, response.Code, http.StatusAccepted)
+		if len(store.winCalls) != 1 {
+			t.Errorf("got %d calls to RecordWin want %d", len(store.winCalls), 1)
+		}
+	})
+}
+
+func newPostWinRequest(name string) *http.Request {
+	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/players/%s", name), nil)
+	return req
 }
 
 func newGetScoreRequest(name string) *http.Request {
