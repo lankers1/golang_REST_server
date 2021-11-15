@@ -18,19 +18,19 @@ type PlayerServer struct {
 //ResponseWriter implements the IO Writer with the Write function.
 //Request represents an HTTP request received by a server or to be sent by a client.
 func (p *PlayerServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	//TrimPrefix removes "/players/" from URL path string to return the players name
+	player := strings.TrimPrefix(r.URL.Path, "/players/")
 
 	//makes routing clearer
 	switch r.Method {
 	case http.MethodPost:
-		p.processWin(w)
+		p.processWin(w, player)
 	case http.MethodGet:
-		p.showScore(w, r)
+		p.showScore(w, player)
 	}
 }
 
-func (p *PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
-	//TrimPrefix removes "/players/" from URL path string to return the players name
-	player := strings.TrimPrefix(r.URL.Path, "/players/")
+func (p *PlayerServer) showScore(w http.ResponseWriter, player string) {
 	score := p.store.GetPlayerScore(player)
 
 	if score == "" {
@@ -40,7 +40,7 @@ func (p *PlayerServer) showScore(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, score)
 }
 
-func (p *PlayerServer) processWin(w http.ResponseWriter) {
-	p.store.RecordWin("Bob")
+func (p *PlayerServer) processWin(w http.ResponseWriter, player string) {
+	p.store.RecordWin(player)
 	w.WriteHeader(http.StatusAccepted)
 }
