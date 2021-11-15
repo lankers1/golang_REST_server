@@ -8,11 +8,11 @@ import (
 )
 
 type StubPlayerStore struct {
-	scores   map[string]string
+	scores   map[string]int
 	winCalls []string
 }
 
-func (s *StubPlayerStore) GetPlayerScore(name string) string {
+func (s *StubPlayerStore) GetPlayerScore(name string) int {
 	score := s.scores[name]
 	return score
 }
@@ -23,9 +23,9 @@ func (s *StubPlayerStore) RecordWin(name string) {
 
 func TestGETPlayers(t *testing.T) {
 	store := StubPlayerStore{
-		map[string]string{
-			"Pepper": "20",
-			"Floyd":  "10",
+		map[string]int{
+			"Pepper": 20,
+			"Floyd":  10,
 		},
 		nil,
 	}
@@ -63,7 +63,7 @@ func TestGETPlayers(t *testing.T) {
 
 func TestStoreWins(t *testing.T) {
 	store := StubPlayerStore{
-		map[string]string{},
+		map[string]int{},
 		nil,
 	}
 	server := &PlayerServer{&store}
@@ -86,19 +86,6 @@ func TestStoreWins(t *testing.T) {
 		}
 
 	})
-}
-
-func TestRecordingWinsAndRetrievingThem(t *testing.T) {
-	store := InMemoryPlayerStore{}
-	server := PlayerServer{&store}
-	player := "Pepper"
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	response := httptest.NewRecorder()
-	server.ServeHTTP(response, newGetScoreRequest(player))
-	assertStatus(t, response.Code, http.StatusOK)
-	assertResponseBody(t, response.Body.String(), "3")
 }
 
 func newPostWinRequest(name string) *http.Request {
