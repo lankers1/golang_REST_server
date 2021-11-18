@@ -3,9 +3,6 @@ services:
   mongodb:
     image : mongo
     container_name: mongodb
-    environment:
-      - PUID=1000
-      - PGID=1000
     volumes:
       - /home/james/mongodb/database:/data/db
     ports:
@@ -14,7 +11,7 @@ services:
   api:
     build: .
     ports:
-      - '8080'
+      - '8080:8080'
     volumes:
       - .:/app
     depends_on:
